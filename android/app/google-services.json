@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "207503016913",
+    "project_id": "lexombat-754cf",
+    "storage_bucket": "lexombat-754cf.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:207503016913:android:ba1dca138f6b01fa5d56f0",
+        "android_client_info": {
+          "package_name": "com.example.lexombat"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA7iDzlU4QPkbePnJAh-BiFHgG6SfgQgBE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
