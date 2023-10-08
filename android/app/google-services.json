@@ -1,18 +1,24 @@
 {
   "project_info": {
     "project_number": "207503016913",
+    "firebase_url": "https://lexombat-754cf-default-rtdb.europe-west1.firebasedatabase.app",
     "project_id": "lexombat-754cf",
     "storage_bucket": "lexombat-754cf.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:207503016913:android:ba1dca138f6b01fa5d56f0",
+        "mobilesdk_app_id": "1:207503016913:android:690e610fa89ad9025d56f0",
         "android_client_info": {
-          "package_name": "com.example.lexombat"
+          "package_name": "com.codescramblerprod.lexombat"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "207503016913-0l38hqm0fnu5m66jo7kvlakr2fb4nlug.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyA7iDzlU4QPkbePnJAh-BiFHgG6SfgQgBE"
@@ -20,7 +26,12 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "207503016913-0l38hqm0fnu5m66jo7kvlakr2fb4nlug.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }

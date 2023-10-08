@@ -55,14 +55,16 @@ class DefaultFirebaseOptions {
     messagingSenderId: '207503016913',
     projectId: 'lexombat-754cf',
     authDomain: 'lexombat-754cf.firebaseapp.com',
+    databaseURL: 'https://lexombat-754cf-default-rtdb.europe-west1.firebasedatabase.app',
     storageBucket: 'lexombat-754cf.appspot.com',
   );
 
   static const FirebaseOptions android = FirebaseOptions(
     apiKey: 'AIzaSyA7iDzlU4QPkbePnJAh-BiFHgG6SfgQgBE',
-    appId: '1:207503016913:android:ba1dca138f6b01fa5d56f0',
+    appId: '1:207503016913:android:690e610fa89ad9025d56f0',
     messagingSenderId: '207503016913',
     projectId: 'lexombat-754cf',
+    databaseURL: 'https://lexombat-754cf-default-rtdb.europe-west1.firebasedatabase.app',
     storageBucket: 'lexombat-754cf.appspot.com',
   );
 }

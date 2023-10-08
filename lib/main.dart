@@ -2,108 +2,37 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'dart:async' show Future;
-import 'package:flutter/services.dart' show rootBundle;
-import 'dart:convert';
+import 'package:lexombat/loading_screen.dart';
+import 'package:json_theme/json_theme.dart';
+import 'package:flutter/services.dart'; // For rootBundle
+import 'dart:convert'; // For jsonDecode
 
-void main() => runApp(const MyApp());
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
 
-class MyApp extends StatefulWidget {
-  const MyApp({super.key});
+  final themeStr = await rootBundle.loadString('assets/appainter_theme.json');
+  final themeJson = jsonDecode(themeStr);
+  final theme = ThemeDecoder.decodeThemeData(themeJson)!;
 
-  @override
-  _MyAppState createState() => _MyAppState();
+  runApp(MyApp(theme: theme));
 }
 
-class _MyAppState extends State<MyApp> {
-  late Future<Map<String, dynamic>> _translations;
-
-  @override
-  void initState() {
-    super.initState();
-    _translations =
-        _loadTranslations('hu.json'); // Default language is Hungarian
-  }
-
-  Future<Map<String, dynamic>> _loadTranslations(String languageCode) async {
-    String jsonString =
-        await rootBundle.loadString('assets/translations/$languageCode');
-    return json.decode(jsonString);
-  }
-
-  String selectedLanguage = "hu";
-  void _changeLanguage(String languageCode) {
-    selectedLanguage = languageCode;
-    setState(() {
-      _translations = _loadTranslations('$languageCode.json');
-    });
-  }
-
+class MyApp extends StatelessWidget {
+  final ThemeData theme;
+  const MyApp({Key? key, required this.theme}) : super(key: key);
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Medieval Empire Game',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-      ),
-      localizationsDelegates: const [
-        GlobalMaterialLocalizations.delegate,
-        GlobalWidgetsLocalizations.delegate,
-      ],
+      title: 'Lexombat',
+      theme: theme,
+      localizationsDelegates: GlobalMaterialLocalizations.delegates,
       supportedLocales: const [
         Locale('en', 'US'), // English
         Locale('es', 'ES'), // Spanish
         Locale('hu', 'HU'), // Hungarian
         // Add more supported languages as needed
       ],
-      home: FutureBuilder(
-        future: _translations,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const CircularProgressIndicator(); // Loading indicator while translations are being loaded
-          } else if (snapshot.hasError) {
-            return const Text('Error loading translations');
-          } else {
-            return Scaffold(
-              appBar: AppBar(
-                title: Text(snapshot.data?['welcome'] ?? ''),
-              ),
-              body: Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: <Widget>[
-                    Text(snapshot.data?['play'] ?? ''),
-                    Text(snapshot.data?['settings'] ?? ''),
-                    DropdownButton<String>(
-                      value: selectedLanguage,
-                      items: const [
-                        DropdownMenuItem(
-                          value: 'en',
-                          child: Text('English'),
-                        ),
-                        DropdownMenuItem(
-                          value: 'es',
-                          child: Text('Español'),
-                        ),
-                        DropdownMenuItem(
-                          value: 'hu',
-                          child: Text('Magyar'),
-                        ),
-                        // Add more languages here
-                      ],
-                      onChanged: (String? newLanguage) {
-                        if (newLanguage != null) {
-                          _changeLanguage(newLanguage);
-                        }
-                      },
-                    ),
-                  ],
-                ),
-              ),
-            );
-          }
-        },
-      ),
+      home: const LoadingScreen(),
     );
   }
 }
