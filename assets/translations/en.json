@@ -1,4 +1,23 @@
 {
-  "loading_firebase":"Awakening Royal Carrier Pigeon..."
-  }
-  
+  "confirmPasswordLabel": "Confirm Your Secret Code",
+  "emailLabel": "Carrier Pigeon Address (Email)",
+  "emailValidationMessage": "First, inscribe your carrier pigeon address.",
+  "errorMessage": "Error",
+  "invalidEmailMessage": "Invalid scroll address.",
+  "loading_firebase": "Awakening the Royal Carrier Pigeon...",
+  "loginPrompt": "Login",
+  "nameLabel": "Moniker (name)",
+  "nameValidationMessage": "Pray, state thy moniker.",
+  "passwordLabel": "Hidden Key",
+  "passwordResetInstructions": "Forgotten thy hidden key? \nWorry not. \n\nProvide thy registered carrier pigeon address, and if thou art in our scrolls, we shall dispatch a missive forthwith containing further instructions.",
+  "passwordResetRequestPrompt": "Request for a New Key",
+  "passwordResetRequestSuccess": "Request Sent: {{email}}",
+  "passwordStrengthMessage": "The key lacks fortitude. It must contain:\n- 8 characters\n- 1 lowercase letter\n- 1 uppercase letter\n- 1 numeral\n- 1 special symbol",
+  "passwordValidationMessage": "First, inscribe thy hidden key.",
+  "registrationPrompt": "Registration",
+  "resetPasswordPrompt": "Request for a New Key",
+  "signInProcessMessage": "Logging in...",
+  "submitPasswordResetRequest": "Request a New Key",
+  "validNameValidationMessage": "Pray, provide thy true moniker.",
+  "checkingProfile": "Seeking Thy Profile"
+}

@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -9,8 +10,7 @@ String selectedLanguage = "en";
 late Map<String, dynamic> translations;
 
 Future<Map<String, dynamic>> loadTranslations(String languageCode) async {
-  String jsonString =
-      await rootBundle.loadString('assets/translations/$languageCode');
+  String jsonString = await rootBundle.loadString('assets/translations/$languageCode');
   return json.decode(jsonString);
 }
 
@@ -28,12 +28,7 @@ class Profile {
   String email;
   bool isAdmin;
   int premiumCredits;
-  Profile(
-      {required this.email,
-      required this.isAdmin,
-      required this.uid,
-      required this.username,
-      required this.premiumCredits});
+  Profile({required this.email, required this.isAdmin, required this.uid, required this.username, required this.premiumCredits});
 }
 
 Future<bool> login({required String email, required String password}) async {
@@ -50,11 +45,7 @@ Future<bool> login({required String email, required String password}) async {
   prefs.setString('Email', email);
   prefs.setString('Password', password);
   String uid = FirebaseAuth.instance.currentUser?.uid ?? "";
-  FirebaseFirestore.instance
-      .collection("userInfo")
-      .doc(uid)
-      .snapshots()
-      .listen((snapshot) {
+  FirebaseFirestore.instance.collection("userInfo").doc(uid).snapshots().listen((snapshot) {
     userProfile = Profile(
         premiumCredits: snapshot["premiumCredits"] ?? 0,
         email: email,
@@ -123,3 +114,16 @@ class Empire {
 String generateUniqueEmpireId() {
   return "${userProfile!.uid.substring(0, 2)}${DateTime.now().millisecondsSinceEpoch.toString().substring(6)}${userProfile!.uid.substring(userProfile!.uid.length - 2)}"; // Replace this with the actual unique ID
 }
+
+List<Color> colorPalette = [
+  Colors.white,
+  Colors.black,
+  Colors.red,
+  Colors.green,
+  Colors.blue,
+  Colors.yellow,
+  Colors.orange,
+  Colors.purple,
+  Colors.pink,
+  Colors.brown,
+];
