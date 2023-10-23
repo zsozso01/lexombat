@@ -86,7 +86,6 @@ class LoadingScreenState extends State<LoadingScreen>
     setState(() {
       _progressTitle = title;
     });
-    await Future.delayed(const Duration(milliseconds: 1000));
   }
 
   @override
