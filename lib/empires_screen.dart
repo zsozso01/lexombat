@@ -199,14 +199,14 @@ class EmpireManagerScreenState extends State<EmpireManagerScreen> {
         .where("creatorID", isEqualTo: userProfile!.uid)
         .get();
     for (var doc in snapshots.docs) {
-      createdEmpires[doc.id] = Empire.fromJson(doc.data());
+      createdEmpires[doc.id] = Empire.fromJson(doc.data(), doc.id);
     }
     snapshots = await FirebaseFirestore.instance
         .collection("empires")
         .where("joinedMembers", arrayContains: userProfile!.uid)
         .get();
     for (var doc in snapshots.docs) {
-      joinedEmpires[doc.id] = Empire.fromJson(doc.data());
+      joinedEmpires[doc.id] = Empire.fromJson(doc.data(), doc.id);
     }
     setState(() {
       isLoading = false;

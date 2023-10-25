@@ -15,7 +15,7 @@
   "passwordStrengthMessage": "La clave secreta no es lo suficientemente fuerte. Debería contener al menos:\n- 8 caracteres\n- 1 minúscula\n- 1 mayúscula\n- 1 número\n- 1 carácter especial",
   "passwordValidationMessage": "Primero, escribe tu clave secreta.",
   "registrationPrompt": "Registro",
-  "resetPasswordPrompt": "Solicitud de Nueva Clave Secreta",
+  "resetPasswordPrompt": "Nueva Clave",
   "signInProcessMessage": "Iniciando Sesión...",
   "submitPasswordResetRequest": "Solicitar Nueva Clave Secreta",
   "validNameValidationMessage": "Por favor, proporcionad tu nombre real.",

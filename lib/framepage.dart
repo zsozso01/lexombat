@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:lexombat/empire_tasks.dart';
 import 'globals.dart';
 
 // ignore: must_be_immutable
@@ -12,15 +13,14 @@ class FramePage extends StatefulWidget {
 class FramePageState extends State<FramePage> {
   int _currentIndex = 1;
 
-  final List<Widget?> _pages = [
-    // Add your different content widgets here for different tabs
-    const Text("Csata"),
-    const Text("Város"),
-    const Text("Kérdések"),
-  ];
-
   @override
   Widget build(BuildContext context) {
+    final List<Widget?> _pages = [
+      // Add your different content widgets here for different tabs
+      const Text("Csata"),
+      const Text("Város"),
+      AssignmentPage(widget.selectedEmpire),
+    ];
     List<String> coatOfArmsString = widget.selectedEmpire.coatOfArms.split(" ");
     return Scaffold(
       appBar: AppBar(

@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/services.dart';
@@ -169,22 +170,24 @@ List<Color> coatOfArmsColors = [
 ];
 
 class Empire {
+  String? id;
   String name;
   String creatorID;
   String creatorName;
   List<String> joinedMembers;
   String coatOfArms;
 
-  Empire({
-    required this.name,
-    required this.creatorID,
-    required this.creatorName,
-    required this.joinedMembers,
-    required this.coatOfArms,
-  });
+  Empire(
+      {required this.name,
+      required this.creatorID,
+      required this.creatorName,
+      required this.joinedMembers,
+      required this.coatOfArms,
+      this.id});
 
-  factory Empire.fromJson(Map<String, dynamic> json) {
+  factory Empire.fromJson(Map<String, dynamic> json, String? id) {
     return Empire(
+      id: id,
       name: json['name'],
       creatorID: json['creatorID'],
       creatorName: json['creatorName'],
@@ -209,7 +212,7 @@ class Empire {
 
   static Empire fromJsonString(String jsonString) {
     Map<String, dynamic> jsonMap = jsonDecode(jsonString);
-    return Empire.fromJson(jsonMap);
+    return Empire.fromJson(jsonMap, null);
   }
 }
 
@@ -287,3 +290,119 @@ void showLogout(BuildContext context) {
     ),
   );
 }
+
+class Task {
+  String question;
+  bool isTrueOrFalse;
+  List<String> goodAnswers;
+  List<String> wrongAnswers;
+  double difficultyMultiplier = 1;
+
+  Task({
+    required this.question,
+    required this.isTrueOrFalse,
+    required this.goodAnswers,
+    required this.wrongAnswers,
+    required this.difficultyMultiplier,
+  });
+
+  // Factory constructor to create Task object from JSON data
+  factory Task.fromJson(Map<String, dynamic> json) {
+    return Task(
+      question: json['question'] ?? '',
+      isTrueOrFalse: json['isTrueOrFalse'] ?? false,
+      goodAnswers: List<String>.from(json['goodAnswers'] ?? []),
+      wrongAnswers: List<String>.from(json['wrongAnswers'] ?? []),
+      difficultyMultiplier: double.parse(json['isTrueOrFalse'] ?? 1),
+    );
+  }
+
+  // Convert Task object to JSON data
+  Map<String, dynamic> toJson() {
+    return {
+      'question': question,
+      'isTrueOrFalse': isTrueOrFalse,
+      'goodAnswers': goodAnswers,
+      'wrongAnswers': wrongAnswers,
+      'difficultyMultiplier': difficultyMultiplier
+    };
+  }
+
+  int calculateTaskDifficulty() {
+    if (isTrueOrFalse) {
+      return 1;
+    }
+    return min(
+        (min(goodAnswers.length, wrongAnswers.length) * difficultyMultiplier)
+            .toInt(),
+        5);
+  }
+}
+
+class Assignment {
+  String name;
+  List<Task> tasks;
+  String ownerId;
+  String creatorName;
+  bool isActive;
+  List<String> assignedEmpires;
+  DateTime lastUpdated;
+
+  Assignment(
+      {required this.name,
+      required this.tasks,
+      required this.ownerId,
+      required this.creatorName,
+      required this.isActive,
+      required this.assignedEmpires,
+      required this.lastUpdated});
+
+  factory Assignment.fromJson(Map<String, dynamic> json) {
+    var tasksJson = json['tasks'] as List<dynamic>;
+    List<Task> tasks =
+        tasksJson.map((taskJson) => Task.fromJson(taskJson)).toList();
+
+    return Assignment(
+      name: json['name'] ?? '',
+      tasks: tasks,
+      ownerId: json['ownerId'] ?? '',
+      creatorName: json['creatorName'] ?? '',
+      isActive: json['isActive'] ?? false,
+      assignedEmpires: List<String>.from(json['assignedEmpires'] ?? []),
+      lastUpdated: DateTime.parse(json["lastUpdated"] ?? ""),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    List<Map<String, dynamic>> tasksJson =
+        tasks.map((task) => task.toJson()).toList();
+
+    return {
+      'name': name,
+      'tasks': tasksJson,
+      'ownerId': ownerId,
+      'creatorName': creatorName,
+      'isActive': isActive,
+      'assignedEmpires': assignedEmpires,
+      'lastUpdated': lastUpdated.toString()
+    };
+  }
+
+  double getDifficulties() {
+    double tempStorage = 0;
+    for (var task in tasks) {
+      tempStorage += task.calculateTaskDifficulty();
+    }
+    return (tempStorage / (tasks.isNotEmpty ? tasks.length : 1) * 100).round() /
+        100;
+  }
+}
+
+Color getColorBasedOnDifficulty(double difficultyLevel) {
+  // Logic to determine color based on difficulty level (0-5)
+  // You can implement your own logic here, for example:
+  double fraction = difficultyLevel / 5.0; // Fraction from 0 to 1
+  return Color.lerp(Colors.green, Colors.red, fraction)!;
+}
+
+List<Assignment> loadedAssignments = [];
