@@ -313,7 +313,7 @@ class Task {
       isTrueOrFalse: json['isTrueOrFalse'] ?? false,
       goodAnswers: List<String>.from(json['goodAnswers'] ?? []),
       wrongAnswers: List<String>.from(json['wrongAnswers'] ?? []),
-      difficultyMultiplier: double.parse(json['isTrueOrFalse'] ?? 1),
+      difficultyMultiplier: json['difficultyMultiplier'] ?? 1,
     );
   }
 
@@ -340,6 +340,7 @@ class Task {
 }
 
 class Assignment {
+  String id;
   String name;
   List<Task> tasks;
   String ownerId;
@@ -349,7 +350,8 @@ class Assignment {
   DateTime lastUpdated;
 
   Assignment(
-      {required this.name,
+      {required this.id,
+      required this.name,
       required this.tasks,
       required this.ownerId,
       required this.creatorName,
@@ -363,6 +365,7 @@ class Assignment {
         tasksJson.map((taskJson) => Task.fromJson(taskJson)).toList();
 
     return Assignment(
+      id: json['id'] ?? '',
       name: json['name'] ?? '',
       tasks: tasks,
       ownerId: json['ownerId'] ?? '',
@@ -378,6 +381,7 @@ class Assignment {
         tasks.map((task) => task.toJson()).toList();
 
     return {
+      'id': id,
       'name': name,
       'tasks': tasksJson,
       'ownerId': ownerId,
@@ -405,4 +409,4 @@ Color getColorBasedOnDifficulty(double difficultyLevel) {
   return Color.lerp(Colors.green, Colors.red, fraction)!;
 }
 
-List<Assignment> loadedAssignments = [];
+Map<String, Assignment> loadedAssignments = {};
