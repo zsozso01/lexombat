@@ -18,6 +18,7 @@ class EmpireManagerScreenState extends State<EmpireManagerScreen> {
   void _joinEmpire() {
     //TODO: Join empire ... (same code as provided in the previous response)
   }
+
   @override
   void initState() {
     super.initState();
@@ -32,7 +33,7 @@ class EmpireManagerScreenState extends State<EmpireManagerScreen> {
       },
       child: Scaffold(
         appBar: AppBar(
-          title: const Text('Birodalom kezelő'),
+          title: Text(translations["empireManager"]),
           actions: [
             IconButton(
                 onPressed: () => showLogout(context),
@@ -55,7 +56,8 @@ class EmpireManagerScreenState extends State<EmpireManagerScreen> {
                           iconSize: 50,
                           onPressed: () async {
                             await Navigator.of(context).push(MaterialPageRoute(
-                                builder: (context) => EmpireCreateScreen()));
+                                builder: (context) =>
+                                    const EmpireCreateScreen()));
                             getEmpires();
                           },
                           icon: const Icon(
@@ -70,18 +72,19 @@ class EmpireManagerScreenState extends State<EmpireManagerScreen> {
                               context: context,
                               builder: (BuildContext context) {
                                 return AlertDialog(
-                                  title: const Text('Csatlakozás birodalomhoz'),
+                                  title: Text(translations["joinEmpire"]),
                                   content: TextField(
                                     controller: _textController,
-                                    decoration: const InputDecoration(
-                                        labelText: 'Birodalom azonosító'),
+                                    decoration: InputDecoration(
+                                        labelText:
+                                            translations["empireIdentifier"]),
                                   ),
                                   actions: <Widget>[
                                     TextButton(
                                       onPressed: () {
                                         Navigator.of(context).pop();
                                       },
-                                      child: const Text('Mégse'),
+                                      child: Text(translations["cancel"]),
                                     ),
                                     ElevatedButton(
                                       onPressed: () async {
@@ -99,7 +102,6 @@ class EmpireManagerScreenState extends State<EmpireManagerScreen> {
                                           ...joinedEmpires.keys,
                                           ...createdEmpires.keys
                                         ].contains(identifier);
-                                        // Handle the submitted identifier (you can pass it to your API or perform other actions)
                                         if (!alreadyJoinedEmpire &&
                                             snapshot.exists) {
                                           await FirebaseFirestore.instance
@@ -111,21 +113,21 @@ class EmpireManagerScreenState extends State<EmpireManagerScreen> {
                                                     [userProfile!.uid])
                                           });
                                           Fluttertoast.showToast(
-                                              msg: "Sikeres csatlakozás");
+                                              msg: translations[
+                                                  "successfulJoin"]);
                                           getEmpires();
                                         } else if (alreadyJoinedEmpire) {
                                           Fluttertoast.showToast(
-                                              msg:
-                                                  "Már tagja vagy ennek a birodalomnak");
+                                              msg: translations[
+                                                  "alreadyMember"]);
                                         } else {
                                           Fluttertoast.showToast(
-                                              msg: "$identifier nem található");
+                                              msg:
+                                                  "${translations["notFound"]} $identifier");
                                         }
-                                        // ignore: use_build_context_synchronously
-                                        Navigator.of(context)
-                                            .pop(); // Close the dialog
+                                        Navigator.of(context).pop();
                                       },
-                                      child: const Text('Csatlakozás'),
+                                      child: Text(translations["join"]),
                                     ),
                                   ],
                                 );
@@ -168,12 +170,12 @@ class EmpireManagerScreenState extends State<EmpireManagerScreen> {
                                   : const Color.fromARGB(24, 76, 175, 79),
                               shape: Border.all(),
                               title: Text(index >= createdEmpires.values.length
-                                  ? "${joinedEmpires.values.toList()[0].name} - Tagok száma: ${joinedEmpires.values.toList()[0].joinedMembers.length}"
-                                  : "${createdEmpires.values.toList()[index].name} - Tagok száma: ${createdEmpires.values.toList()[index].joinedMembers.length}"),
+                                  ? "${joinedEmpires.values.toList()[0].name} - ${translations["membersCount"]}: ${joinedEmpires.values.toList()[0].joinedMembers.length}"
+                                  : "${createdEmpires.values.toList()[index].name} - ${translations["membersCount"]}: ${createdEmpires.values.toList()[index].joinedMembers.length}"),
                               subtitle: Text(index >=
                                       createdEmpires.values.length
-                                  ? "Uralkodó: ${joinedEmpires.values.toList()[0].creatorName}"
-                                  : 'Azonosító: ${createdEmpires.keys.toList()[index]}'),
+                                  ? "${translations["identifier"]}: ${joinedEmpires.keys.toList()[0]}"
+                                  : "${translations["identifier"]}: ${createdEmpires.keys.toList()[index]}"),
                               trailing: generateCoatOfArms(
                                   int.parse(coatOfArmsString[1]),
                                   int.parse(coatOfArmsString[0]),

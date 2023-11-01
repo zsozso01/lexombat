@@ -109,7 +109,7 @@ class _SignInState extends State<SignIn> {
                 children: [
                   TextButton(
                     onPressed: () => showPasswordResetRequestDialog(context),
-                    child: Text(translations["resetPasswordPrompt"]),
+                    child: Text(translations["passwordResetRequestPrompt"]),
                   ),
                   TextButton(
                     onPressed: () {
@@ -146,16 +146,17 @@ class _SignInState extends State<SignIn> {
         context: context,
         barrierDismissible: false,
         builder: (BuildContext context) {
-          return const Dialog(
+          return Dialog(
             child: Padding(
-              padding: EdgeInsets.all(20.0),
+              padding: const EdgeInsets.all(20.0),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 // ignore: prefer_const_literals_to_create_immutables
                 children: [
-                  CircularProgressIndicator(),
-                  SizedBox(height: 20),
-                  Text("Bejelentkezés..."), // Hungarian Translation
+                  const CircularProgressIndicator(),
+                  const SizedBox(height: 20),
+                  Text(
+                      "${translations["loginPrompt"]}..."), // Hungarian Translation
                 ],
               ),
             ),
@@ -172,7 +173,7 @@ class _SignInState extends State<SignIn> {
     } catch (e) {
       Navigator.pop(context);
       Fluttertoast.showToast(
-          msg: "Érvénytelen email vagy jelszó", // Hungarian Translation
+          msg: e.toString(), // Hungarian Translation
           toastLength: Toast.LENGTH_LONG,
           gravity: ToastGravity.BOTTOM,
           timeInSecForIosWeb: 1,
@@ -191,7 +192,7 @@ void showPasswordResetRequestDialog(BuildContext context) {
     context: context,
     builder: (context) {
       return AlertDialog(
-        title: const Text('Jelszó igénylés'),
+        title: Text(translations["passwordResetRequestPrompt"]),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [

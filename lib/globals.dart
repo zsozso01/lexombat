@@ -12,8 +12,10 @@ String selectedLanguage = "en";
 late Map<String, dynamic> translations;
 
 Future<Map<String, dynamic>> loadTranslations(String languageCode) async {
+  /*String jsonString =
+      await rootBundle.loadString('assets/translations/$languageCode');*/
   String jsonString =
-      await rootBundle.loadString('assets/translations/$languageCode');
+      await rootBundle.loadString('assets/translations/en.json');
   return json.decode(jsonString);
 }
 
@@ -243,11 +245,11 @@ void showLogout(BuildContext context) {
   showDialog(
     context: context,
     builder: (_) => AlertDialog(
-      title: const Text(
-        'Kijelentkezés',
+      title: Text(
+        translations["logout"],
       ),
       content: Text(
-        'Biztosan ki szeretne jelentkezni?',
+        translations["logoutPrompt"],
         style: TextStyle(
             color: Theme.of(context).brightness == Brightness.dark
                 ? Colors.white
@@ -255,9 +257,9 @@ void showLogout(BuildContext context) {
       ),
       actions: <Widget>[
         TextButton(
-          child: const Text(
-            'Mégse',
-            style: TextStyle(color: Colors.grey),
+          child: Text(
+            translations["cancel"],
+            style: const TextStyle(color: Colors.grey),
           ),
           onPressed: () {
             Navigator.of(context).pop(); // Dismiss the dialog
@@ -272,9 +274,9 @@ void showLogout(BuildContext context) {
               borderRadius: BorderRadius.all(Radius.circular(5)),
             ),
           ),
-          child: const Text(
-            'Kijelentkezés',
-            style: TextStyle(color: Colors.white),
+          child: Text(
+            translations["logout"],
+            style: const TextStyle(color: Colors.white),
           ),
           onPressed: () async {
             // Perform logout operation here
@@ -313,7 +315,8 @@ class Task {
       isTrueOrFalse: json['isTrueOrFalse'] ?? false,
       goodAnswers: List<String>.from(json['goodAnswers'] ?? []),
       wrongAnswers: List<String>.from(json['wrongAnswers'] ?? []),
-      difficultyMultiplier: json['difficultyMultiplier'] ?? 1,
+      difficultyMultiplier:
+          double.parse((json['difficultyMultiplier'] ?? 1).toString()),
     );
   }
 

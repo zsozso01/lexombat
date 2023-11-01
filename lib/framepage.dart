@@ -44,18 +44,18 @@ class FramePageState extends State<FramePage> {
             _currentIndex = index;
           });
         },
-        items: const [
+        items: [
           BottomNavigationBarItem(
-            icon: Icon(Icons.sports_kabaddi),
-            label: 'Csata',
+            icon: const Icon(Icons.sports_kabaddi),
+            label: translations["fight"],
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.location_city),
-            label: 'Város',
+            icon: const Icon(Icons.location_city),
+            label: translations["town"],
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.question_answer),
-            label: 'Feladatok',
+            icon: const Icon(Icons.question_answer),
+            label: translations["quests"],
           ),
         ],
       ),
