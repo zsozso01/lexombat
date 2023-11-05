@@ -24,11 +24,13 @@ class AssignmentPageState extends State<AssignmentPage> {
   }
 
   void loadAssignments() {
-    FirebaseFirestore.instance
+    var tempQuery = FirebaseFirestore.instance
         .collection("assignments")
-        .where("assignedEmpires", arrayContains: widget.selectedEmpire.id)
-        .snapshots()
-        .listen((snapshot) {
+        .where("assignedEmpires", arrayContains: widget.selectedEmpire.id);
+    if (widget.selectedEmpire.creatorID != userProfile!.uid) {
+      tempQuery = tempQuery.where("isActive", isEqualTo: true);
+    }
+    tempQuery.snapshots().listen((snapshot) {
       for (var docChange in snapshot.docChanges) {
         if (docChange.type == DocumentChangeType.removed) {
           loadedAssignments.remove(docChange.doc.id);
@@ -96,7 +98,7 @@ class AssignmentPageState extends State<AssignmentPage> {
                 ),
               if (assignmentsList.isEmpty)
                 Padding(
-                  padding: EdgeInsets.all(8.0),
+                  padding: const EdgeInsets.all(8.0),
                   child: Text(
                     translations["noAssignmentsMessage"],
                     textAlign: TextAlign.center,
@@ -105,9 +107,19 @@ class AssignmentPageState extends State<AssignmentPage> {
               if (assignmentsList.isNotEmpty)
                 Expanded(
                   child: ListView.builder(
-                    itemCount: assignmentsList.length,
+                    itemCount: assignmentsList
+                        .where((element) =>
+                            widget.selectedEmpire.creatorID ==
+                                userProfile!.uid ||
+                            element.isActive)
+                        .length,
                     itemBuilder: (context, index) {
-                      Assignment currentAssignment = assignmentsList[index];
+                      Assignment currentAssignment = assignmentsList
+                          .where((element) =>
+                              widget.selectedEmpire.creatorID ==
+                                  userProfile!.uid ||
+                              element.isActive)
+                          .toList()[index];
                       return Padding(
                         padding: const EdgeInsets.all(8.0),
                         child: AnimatedOpacity(
@@ -119,30 +131,36 @@ class AssignmentPageState extends State<AssignmentPage> {
                             title: Text(currentAssignment.name),
                             subtitle: Text(
                                 "${currentAssignment.tasks.length} ${translations["task"]}"),
-                            trailing: Switch(
-                              value: currentAssignment.isActive,
-                              onChanged: (value) {
-                                setState(() {
-                                  currentAssignment.isActive = value;
-                                  currentAssignment.lastUpdated =
-                                      DateTime.now();
-                                });
-                                FirebaseFirestore.instance
-                                    .collection("assignments")
-                                    .doc(currentAssignment.id)
-                                    .update(currentAssignment.toJson());
-                              },
-                            ),
+                            trailing: widget.selectedEmpire.creatorID !=
+                                    userProfile!.uid
+                                ? null
+                                : Switch(
+                                    value: currentAssignment.isActive,
+                                    onChanged: (value) {
+                                      setState(() {
+                                        currentAssignment.isActive = value;
+                                        currentAssignment.lastUpdated =
+                                            DateTime.now();
+                                      });
+                                      FirebaseFirestore.instance
+                                          .collection("assignments")
+                                          .doc(currentAssignment.id)
+                                          .update(currentAssignment.toJson());
+                                    },
+                                  ),
                             leading: Icon(
                               Icons.circle,
                               color: getColorBasedOnDifficulty(
                                   currentAssignment.getDifficulties()),
                             ),
-                            onTap: () async {
-                              await _showAssignmentDetailsDialog(
-                                  context, currentAssignment);
-                              setState(() {});
-                            },
+                            onTap: widget.selectedEmpire.creatorID !=
+                                    userProfile!.uid
+                                ? null
+                                : () async {
+                                    await _showAssignmentDetailsDialog(
+                                        context, currentAssignment);
+                                    setState(() {});
+                                  },
                           ),
                         ),
                       );
@@ -277,40 +295,42 @@ class AssignmentPageState extends State<AssignmentPage> {
         builder: (context) {
           return AlertDialog(
             title: Text(assignment.name),
-            content: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: <Widget>[
-                ListTile(
-                  tileColor:
-                      getColorBasedOnDifficulty(assignment.getDifficulties()),
-                  subtitle: Text(
-                    translations["difficultyLevel"],
-                    style: TextStyle(color: Colors.white),
+            content: SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: <Widget>[
+                  ListTile(
+                    tileColor:
+                        getColorBasedOnDifficulty(assignment.getDifficulties()),
+                    subtitle: Text(
+                      translations["difficultyLevel"],
+                      style: const TextStyle(color: Colors.white),
+                    ),
+                    title: Text("${assignment.getDifficulties()}",
+                        style: const TextStyle(color: Colors.white)),
                   ),
-                  title: Text("${assignment.getDifficulties()}",
-                      style: const TextStyle(color: Colors.white)),
-                ),
-                ListTile(
-                  subtitle: Text(translations["creator"]),
-                  title: Text(assignment.creatorName),
-                ),
-                ListTile(
-                  subtitle: Text(translations["numberOfQuestions"]),
-                  title: Text('${assignment.tasks.length}'),
-                ),
-                ListTile(
-                  subtitle: Text(translations["isVisibleToStudents"]),
-                  title: Text(assignment.isActive
-                      ? translations["yes"]
-                      : translations["no"]),
-                ),
-                ListTile(
-                  subtitle: Text(translations["lastUpdate"]),
-                  title: Text(
-                      "${DateFormat.yMMMMd().format(assignment.lastUpdated)} ${DateFormat.Hms().format(assignment.lastUpdated)}"),
-                ),
-              ],
+                  ListTile(
+                    subtitle: Text(translations["creator"]),
+                    title: Text(assignment.creatorName),
+                  ),
+                  ListTile(
+                    subtitle: Text(translations["numberOfQuestions"]),
+                    title: Text('${assignment.tasks.length}'),
+                  ),
+                  ListTile(
+                    subtitle: Text(translations["isVisibleToStudents"]),
+                    title: Text(assignment.isActive
+                        ? translations["yes"]
+                        : translations["no"]),
+                  ),
+                  ListTile(
+                    subtitle: Text(translations["lastUpdate"]),
+                    title: Text(
+                        "${DateFormat.yMMMMd().format(assignment.lastUpdated)} ${DateFormat.Hms().format(assignment.lastUpdated)}"),
+                  ),
+                ],
+              ),
             ),
             actions: <Widget>[
               TextButton(
@@ -382,8 +402,7 @@ class AssignmentPageState extends State<AssignmentPage> {
                         return Padding(
                           padding: const EdgeInsets.all(8.0),
                           child: ListTile(
-                            title: Text(
-                                '${translations["name"]}: ${assignment.name}'),
+                            title: Text(assignment.name),
                             shape: selectedAssignment == index
                                 ? Border.all()
                                 : null,
@@ -431,7 +450,7 @@ class AssignmentPageState extends State<AssignmentPage> {
                     child: Text(translations["duplicateAndImportTask"]),
                   ),
                 ),
-                Padding(
+                /*Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: ElevatedButton(
                     onPressed: () async {
@@ -447,7 +466,7 @@ class AssignmentPageState extends State<AssignmentPage> {
                     },
                     child: Text(translations["assignTask"]),
                   ),
-                ),
+                ),*/
               ]
             ],
           );

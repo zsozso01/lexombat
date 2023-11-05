@@ -413,3 +413,26 @@ Color getColorBasedOnDifficulty(double difficultyLevel) {
 }
 
 Map<String, Assignment> loadedAssignments = {};
+
+String formatNumber(int number, int accuracy) {
+  double formattedNumber = number.toDouble();
+  String suffix = '';
+
+  if (number >= 1000000000000) {
+    formattedNumber = number / 1000000000000;
+    suffix = 'T';
+  } else if (number >= 1000000000) {
+    formattedNumber = number / 1000000000;
+    suffix = 'B';
+  } else if (number >= 1000000) {
+    formattedNumber = number / 1000000;
+    suffix = 'M';
+  } else if (number >= 9999) {
+    formattedNumber = number / 1000;
+    suffix = 'K';
+  }
+  return formattedNumber.toStringAsFixed(formattedNumber > 9999
+          ? accuracy - (formattedNumber.toInt().toString().length % accuracy)
+          : 0) +
+      suffix;
+}
