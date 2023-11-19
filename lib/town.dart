@@ -2,10 +2,14 @@ import 'dart:math';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:lexombat/globals.dart';
+import 'package:lexombat/tasks_manager.dart';
 
+// ignore: must_be_immutable
 class TownPage extends StatefulWidget {
-  const TownPage({super.key});
+  TownPage({super.key, required this.currentEmpire});
+  Empire currentEmpire;
 
   @override
   TownPageState createState() => TownPageState();
@@ -394,7 +398,7 @@ class TownPageState extends State<TownPage> {
                                 )
                               ],
                             ),
-                            onPressed: () {
+                            onPressed: () async {
                               setState(() {
                                 for (var resource
                                     in building.costToProduce.keys) {
@@ -411,6 +415,56 @@ class TownPageState extends State<TownPage> {
                                     ifAbsent: () => 0,
                                   );
                                 }
+                              });
+                              List<Task> loadedTasks = loadedAssignments.values
+                                  .where((assignment) =>
+                                      assignment.assignedEmpires
+                                          .contains(widget.currentEmpire.id) &&
+                                      assignment.isActive)
+                                  .expand((assignment) => assignment
+                                      .tasks) // Assuming assignment.tasks is the list of Task objects
+                                  .toList();
+                              if (loadedTasks.isEmpty) {
+                                showLoadingDialog(context, "Finding tasks...");
+                                await loadAssignments(
+                                    widget.currentEmpire, false);
+                                // ignore: use_build_context_synchronously
+                                Navigator.pop(context);
+                              }
+                              loadedTasks = loadedAssignments.values
+                                  .where((assignment) =>
+                                      assignment.assignedEmpires
+                                          .contains(widget.currentEmpire.id) &&
+                                      assignment.isActive)
+                                  .expand((assignment) => assignment
+                                      .tasks) // Assuming assignment.tasks is the list of Task objects
+                                  .toList();
+                              loadedTasks.shuffle();
+                              if (loadedTasks.isEmpty) {
+                                Fluttertoast.showToast(
+                                    msg: "Couldn't find tasks");
+                                return;
+                              }
+                              double success = 0;
+                              // ignore: use_build_context_synchronously
+                              await Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => QuizPage(
+                                    tasks: loadedTasks,
+                                    onQuizCompleted: (percentage) {
+                                      // Handle the quiz completion here
+                                      // For now, print the percentage to the console
+                                      success = percentage;
+                                      Fluttertoast.showToast(
+                                          msg:
+                                              'Quiz completed. Percentage: ${percentage * 100}%');
+                                    },
+                                  ),
+                                ),
+                              );
+
+                              setState(() {
                                 for (var resource
                                     in building.resourcesProduced.keys) {
                                   storedResources.update(
@@ -422,7 +476,9 @@ class TownPageState extends State<TownPage> {
                                                         pow(
                                                             building
                                                                 .resourceMultiplierPerLevel,
-                                                            building.level - 1))
+                                                            building.level -
+                                                                1) *
+                                                        success)
                                                     .floor()
                                                     .toDouble()),
                                             0,

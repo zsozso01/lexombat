@@ -1,5 +1,7 @@
 // ignore_for_file: use_build_context_synchronously
 
+import 'dart:async';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -19,30 +21,25 @@ class AssignmentPage extends StatefulWidget {
 class AssignmentPageState extends State<AssignmentPage> {
   @override
   void initState() {
-    loadAssignments();
+    _loadAssignments();
     super.initState();
   }
 
-  void loadAssignments() {
-    var tempQuery = FirebaseFirestore.instance
-        .collection("assignments")
-        .where("assignedEmpires", arrayContains: widget.selectedEmpire.id);
-    if (widget.selectedEmpire.creatorID != userProfile!.uid) {
-      tempQuery = tempQuery.where("isActive", isEqualTo: true);
+  StreamSubscription<QuerySnapshot<Map<String, dynamic>>>? assigmentSnapshot;
+
+  Future<void> _loadAssignments() async {
+    assigmentSnapshot = await loadAssignments(widget.selectedEmpire, true);
+    if (mounted) {
+      setState(() {});
     }
-    tempQuery.snapshots().listen((snapshot) {
-      for (var docChange in snapshot.docChanges) {
-        if (docChange.type == DocumentChangeType.removed) {
-          loadedAssignments.remove(docChange.doc.id);
-        } else {
-          loadedAssignments[docChange.doc.id] =
-              Assignment.fromJson(docChange.doc.data()!);
-        }
-        if (mounted) {
-          setState(() {});
-        }
-      }
-    });
+  }
+
+  @override
+  void dispose() {
+    if (assigmentSnapshot != null) {
+      assigmentSnapshot!.cancel();
+    }
+    super.dispose();
   }
 
   @override

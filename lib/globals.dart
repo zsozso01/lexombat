@@ -336,7 +336,7 @@ class Task {
       return 1;
     }
     return min(
-        (min(goodAnswers.length, wrongAnswers.length) * difficultyMultiplier)
+        ((goodAnswers.length + wrongAnswers.length) / 2 * difficultyMultiplier)
             .toInt(),
         5);
   }
@@ -435,4 +435,51 @@ String formatNumber(int number, int accuracy) {
           ? accuracy - (formattedNumber.toInt().toString().length % accuracy)
           : 0) +
       suffix;
+}
+
+Future<dynamic> loadAssignments(Empire selectedEmpire, bool updateMode) async {
+  var tempQuery = FirebaseFirestore.instance
+      .collection("assignments")
+      .where("assignedEmpires", arrayContains: selectedEmpire.id);
+  if (selectedEmpire.creatorID != userProfile!.uid) {
+    tempQuery = tempQuery.where("isActive", isEqualTo: true);
+  }
+  if (!updateMode) {
+    var docs = await tempQuery.get();
+    for (var doc in docs.docs) {
+      loadedAssignments[doc.id] = Assignment.fromJson(doc.data());
+    }
+    return null;
+  } else {
+    var stream = tempQuery.snapshots().listen((snapshot) {
+      for (var docChange in snapshot.docChanges) {
+        if (docChange.type == DocumentChangeType.removed) {
+          loadedAssignments.remove(docChange.doc.id);
+        } else {
+          loadedAssignments[docChange.doc.id] =
+              Assignment.fromJson(docChange.doc.data()!);
+        }
+      }
+    });
+    return stream;
+  }
+}
+
+Future<void> showLoadingDialog(BuildContext context, String text) async {
+  return showDialog<void>(
+    context: context,
+    barrierDismissible: false, // user must tap button!
+    builder: (BuildContext context) {
+      return AlertDialog(
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const CircularProgressIndicator(),
+            const SizedBox(height: 16),
+            Text(text),
+          ],
+        ),
+      );
+    },
+  );
 }

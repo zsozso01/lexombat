@@ -17,7 +17,9 @@ class FramePageState extends State<FramePage> {
     final List<Widget> pages = [
       // Add your different content widgets here for different tabs
       const Text("Csata"),
-      const TownPage(),
+      TownPage(
+        currentEmpire: widget.selectedEmpire,
+      ),
       AssignmentPage(widget.selectedEmpire),
     ];
     List<String> coatOfArmsString = widget.selectedEmpire.coatOfArms.split(" ");
