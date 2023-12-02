@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:lexombat/conquer_page.dart';
 import 'package:lexombat/empire_tasks.dart';
 import 'package:lexombat/town.dart';
 import 'globals.dart';
@@ -16,7 +17,9 @@ class FramePageState extends State<FramePage> {
   Widget build(BuildContext context) {
     final List<Widget> pages = [
       // Add your different content widgets here for different tabs
-      const Text("Csata"),
+      MapGridPage(
+        currentEmpire: widget.selectedEmpire,
+      ),
       TownPage(
         currentEmpire: widget.selectedEmpire,
       ),
@@ -30,11 +33,7 @@ class FramePageState extends State<FramePage> {
         appBar: AppBar(
           title: Text(widget.selectedEmpire.name),
           actions: [
-            generateCoatOfArms(
-                int.parse(coatOfArmsString[1]),
-                int.parse(coatOfArmsString[0]),
-                int.parse(coatOfArmsString[2]),
-                0.4),
+            generateCoatOfArms(int.parse(coatOfArmsString[1]), int.parse(coatOfArmsString[0]), int.parse(coatOfArmsString[2]), 0.4),
             /*IconButton(
                 onPressed: () => showLogout(context),
                 icon: const Icon(Icons.login)),*/
@@ -46,8 +45,8 @@ class FramePageState extends State<FramePage> {
           labelColor: const Color.fromARGB(255, 120, 85, 72),
           tabs: [
             Tab(
-              text: translations["fight"],
-              icon: const Icon(Icons.sports_kabaddi),
+              text: translations["conquer"],
+              icon: const Icon(Icons.flag),
             ),
             Tab(
               text: translations["town"],

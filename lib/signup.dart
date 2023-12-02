@@ -17,8 +17,7 @@ class _SignUpPageState extends State<SignUpPage> {
   final GlobalKey<FormState> _signUpFormKey = GlobalKey<FormState>();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-  final TextEditingController _confirmPasswordController =
-      TextEditingController();
+  final TextEditingController _confirmPasswordController = TextEditingController();
   final TextEditingController _nameController = TextEditingController();
   void showMessage(String text, Color background) {
     Fluttertoast.showToast(
@@ -75,16 +74,13 @@ class _SignUpPageState extends State<SignUpPage> {
       );
 
       await result.user?.sendEmailVerification();
-      await firestore.collection("userInfo").doc(result.user?.uid).set({
-        "email": _emailController.text.trim(),
-        "name": _nameController.text.trim(),
-        "isAdmin": false,
-        "premiumCredits": 0
-      });
+      await firestore
+          .collection("userInfo")
+          .doc(result.user?.uid)
+          .set({"email": _emailController.text.trim(), "name": _nameController.text.trim(), "isAdmin": false, "premiumCredits": 0});
       // update the user's profile with the additional data
       await result.user?.updateDisplayName(_nameController.text.trim());
-      showMessage(
-          "Sikeres regisztráció!", Colors.black); // Hungarian Translation
+      showMessage("Sikeres regisztráció!", Colors.black); // Hungarian Translation
       Navigator.pop(context);
       Navigator.pop(context);
       // ignore: empty_catches
@@ -122,7 +118,7 @@ class _SignUpPageState extends State<SignUpPage> {
                     },
                     controller: _nameController,
                     decoration: InputDecoration(
-                      labelText: translations["nameLabel"] ?? "Név",
+                      labelText: translations["name"] ?? "Név",
                     ),
                   ),
                 ),
@@ -131,9 +127,7 @@ class _SignUpPageState extends State<SignUpPage> {
                   child: TextFormField(
                     controller: _emailController,
                     validator: (value) {
-                      if (!RegExp(
-                              r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9.-]+\.[a-zA-Z]+")
-                          .hasMatch(value ?? "")) {
+                      if (!RegExp(r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9.-]+\.[a-zA-Z]+").hasMatch(value ?? "")) {
                         return translations["invalidEmailMessage"];
                       }
                       return null;
@@ -149,21 +143,16 @@ class _SignUpPageState extends State<SignUpPage> {
                     controller: _passwordController,
                     obscureText: !passwordVisible,
                     validator: (value) {
-                      if ((value?.length ?? 0) < 8 ||
-                          !RegExp(r"(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*\W)")
-                              .hasMatch(value ?? "")) {
+                      if ((value?.length ?? 0) < 8 || !RegExp(r"(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*\W)").hasMatch(value ?? "")) {
                         return translations["passwordStrengthMessage"];
                       }
                       return null;
                     },
                     decoration: InputDecoration(
-                      labelText:
-                          translations["passwordLabel"] ?? "Titkos jelszó",
+                      labelText: translations["passwordLabel"] ?? "Titkos jelszó",
                       suffixIcon: IconButton(
                         icon: Icon(
-                          passwordVisible
-                              ? Icons.visibility
-                              : Icons.visibility_off,
+                          passwordVisible ? Icons.visibility : Icons.visibility_off,
                           color: Colors.grey,
                         ),
                         onPressed: () {
@@ -181,19 +170,13 @@ class _SignUpPageState extends State<SignUpPage> {
                     controller: _confirmPasswordController,
                     obscureText: !passwordVisible,
                     validator: (value) {
-                      return value != _passwordController.text
-                          ? translations["confirmPasswordLabel"] ??
-                              "Jelszó megerősítése"
-                          : null;
+                      return value != _passwordController.text ? translations["confirmPasswordLabel"] ?? "Jelszó megerősítése" : null;
                     },
                     decoration: InputDecoration(
-                      labelText: translations["confirmPasswordLabel"] ??
-                          "Jelszó megerősítése",
+                      labelText: translations["confirmPasswordLabel"] ?? "Jelszó megerősítése",
                       suffixIcon: IconButton(
                         icon: Icon(
-                          passwordVisible
-                              ? Icons.visibility
-                              : Icons.visibility_off,
+                          passwordVisible ? Icons.visibility : Icons.visibility_off,
                           color: Colors.grey,
                         ),
                         onPressed: () {
@@ -208,8 +191,7 @@ class _SignUpPageState extends State<SignUpPage> {
                 const SizedBox(height: 16),
                 ElevatedButton(
                   onPressed: _submitForm,
-                  child: Text(
-                      translations["registrationPrompt"] ?? "Regisztráció"),
+                  child: Text(translations["registrationPrompt"] ?? "Regisztráció"),
                 ),
               ],
             ),

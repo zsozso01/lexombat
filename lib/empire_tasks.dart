@@ -29,6 +29,12 @@ class AssignmentPageState extends State<AssignmentPage> {
 
   Future<void> _loadAssignments() async {
     assigmentSnapshot = await loadAssignments(widget.selectedEmpire, true);
+    while (loadedAssignments.values
+        .where((element) => element.assignedEmpires.contains(widget.selectedEmpire.id) && element.isActive)
+        .toList()
+        .isEmpty) {
+      await Future.delayed(const Duration(milliseconds: 250));
+    }
     if (mounted) {
       setState(() {});
     }
@@ -45,17 +51,14 @@ class AssignmentPageState extends State<AssignmentPage> {
   @override
   Widget build(BuildContext context) {
     // Convert values of the map to a list
-    List<Assignment> assignmentsList = loadedAssignments.values
-        .where((element) =>
-            element.assignedEmpires.contains(widget.selectedEmpire.id))
-        .toList();
+    List<Assignment> assignmentsList =
+        loadedAssignments.values.where((element) => element.assignedEmpires.contains(widget.selectedEmpire.id)).toList();
 
     // Sort the list by lastUpdated (latest first)
     assignmentsList.sort((a, b) => b.lastUpdated.compareTo(a.lastUpdated));
 
     // Sort the list by isActive (true values first)
-    assignmentsList
-        .sort((a, b) => (b.isActive ? 1 : 0).compareTo(a.isActive ? 1 : 0));
+    assignmentsList.sort((a, b) => (b.isActive ? 1 : 0).compareTo(a.isActive ? 1 : 0));
     return Scaffold(
       body: Padding(
         padding: const EdgeInsets.all(8.0),
@@ -75,8 +78,7 @@ class AssignmentPageState extends State<AssignmentPage> {
                         Icons.add_circle_rounded,
                       ),
                       onPressed: () async {
-                        await showNewAssignmentDialog(
-                            context, widget.selectedEmpire);
+                        await showNewAssignmentDialog(context, widget.selectedEmpire);
                         setState(() {});
                       },
                     ),
@@ -86,8 +88,7 @@ class AssignmentPageState extends State<AssignmentPage> {
                         Icons.download_for_offline_rounded,
                       ),
                       onPressed: () async {
-                        await showAssignmentsImportPopup(
-                            context, userProfile!.uid, widget.selectedEmpire);
+                        await showAssignmentsImportPopup(context, userProfile!.uid, widget.selectedEmpire);
                         setState(() {});
                       },
                     ),
@@ -104,40 +105,26 @@ class AssignmentPageState extends State<AssignmentPage> {
               if (assignmentsList.isNotEmpty)
                 Expanded(
                   child: ListView.builder(
-                    itemCount: assignmentsList
-                        .where((element) =>
-                            widget.selectedEmpire.creatorID ==
-                                userProfile!.uid ||
-                            element.isActive)
-                        .length,
+                    itemCount: assignmentsList.where((element) => widget.selectedEmpire.creatorID == userProfile!.uid || element.isActive).length,
                     itemBuilder: (context, index) {
-                      Assignment currentAssignment = assignmentsList
-                          .where((element) =>
-                              widget.selectedEmpire.creatorID ==
-                                  userProfile!.uid ||
-                              element.isActive)
-                          .toList()[index];
+                      Assignment currentAssignment =
+                          assignmentsList.where((element) => widget.selectedEmpire.creatorID == userProfile!.uid || element.isActive).toList()[index];
                       return Padding(
                         padding: const EdgeInsets.all(8.0),
                         child: AnimatedOpacity(
                           opacity: currentAssignment.isActive ? 1.0 : 0.5,
-                          duration: const Duration(
-                              milliseconds:
-                                  300), // Set the duration of the opacity animation
+                          duration: const Duration(milliseconds: 300), // Set the duration of the opacity animation
                           child: ListTile(
                             title: Text(currentAssignment.name),
-                            subtitle: Text(
-                                "${currentAssignment.tasks.length} ${translations["task"]}"),
-                            trailing: widget.selectedEmpire.creatorID !=
-                                    userProfile!.uid
+                            subtitle: Text("${currentAssignment.tasks.length} ${translations["task"]}"),
+                            trailing: widget.selectedEmpire.creatorID != userProfile!.uid
                                 ? null
                                 : Switch(
                                     value: currentAssignment.isActive,
                                     onChanged: (value) {
                                       setState(() {
                                         currentAssignment.isActive = value;
-                                        currentAssignment.lastUpdated =
-                                            DateTime.now();
+                                        currentAssignment.lastUpdated = DateTime.now();
                                       });
                                       FirebaseFirestore.instance
                                           .collection("assignments")
@@ -147,15 +134,12 @@ class AssignmentPageState extends State<AssignmentPage> {
                                   ),
                             leading: Icon(
                               Icons.circle,
-                              color: getColorBasedOnDifficulty(
-                                  currentAssignment.getDifficulties()),
+                              color: getColorBasedOnDifficulty(currentAssignment.getDifficulties()),
                             ),
-                            onTap: widget.selectedEmpire.creatorID !=
-                                    userProfile!.uid
+                            onTap: widget.selectedEmpire.creatorID != userProfile!.uid
                                 ? null
                                 : () async {
-                                    await _showAssignmentDetailsDialog(
-                                        context, currentAssignment);
+                                    await _showAssignmentDetailsDialog(context, currentAssignment);
                                     setState(() {});
                                   },
                           ),
@@ -171,8 +155,7 @@ class AssignmentPageState extends State<AssignmentPage> {
     );
   }
 
-  Future<void> showRemoveAssignmentConfirmationDialog(
-      BuildContext context, String id) async {
+  Future<void> showRemoveAssignmentConfirmationDialog(BuildContext context, String id) async {
     await showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -189,20 +172,12 @@ class AssignmentPageState extends State<AssignmentPage> {
             ElevatedButton(
               onPressed: () {
                 setState(() {
-                  loadedAssignments[id]
-                      ?.assignedEmpires
-                      .remove(widget.selectedEmpire.id);
+                  loadedAssignments[id]?.assignedEmpires.remove(widget.selectedEmpire.id);
                   if (loadedAssignments[id]!.assignedEmpires.isEmpty) {
-                    FirebaseFirestore.instance
-                        .collection("assignments")
-                        .doc(id)
-                        .delete();
+                    FirebaseFirestore.instance.collection("assignments").doc(id).delete();
                     loadedAssignments.remove(id);
                   } else {
-                    FirebaseFirestore.instance
-                        .collection("assignments")
-                        .doc(id)
-                        .update(loadedAssignments[id]!.toJson());
+                    FirebaseFirestore.instance.collection("assignments").doc(id).update(loadedAssignments[id]!.toJson());
                   }
                 });
                 Navigator.of(context).pop();
@@ -215,8 +190,7 @@ class AssignmentPageState extends State<AssignmentPage> {
     );
   }
 
-  Future<void> showNewAssignmentDialog(
-      BuildContext context, Empire selectedEmpire) async {
+  Future<void> showNewAssignmentDialog(BuildContext context, Empire selectedEmpire) async {
     TextEditingController nameController = TextEditingController();
 
     await showDialog(
@@ -229,8 +203,7 @@ class AssignmentPageState extends State<AssignmentPage> {
             children: <Widget>[
               TextField(
                 controller: nameController,
-                decoration:
-                    InputDecoration(labelText: translations["assignmentName"]),
+                decoration: InputDecoration(labelText: translations["assignmentName"]),
               ),
             ],
           ),
@@ -246,19 +219,12 @@ class AssignmentPageState extends State<AssignmentPage> {
                 String assignmentName = nameController.text;
                 // Validate and handle the assignment name (you can add more validation logic)
                 if (assignmentName.isEmpty) {
-                  Fluttertoast.showToast(
-                      msg: translations["assignmentNameEmptyError"]);
+                  Fluttertoast.showToast(msg: translations["assignmentNameEmptyError"]);
                   return;
                 }
-                String tempID =
-                    "${userProfile!.uid} - ${nameController.text.trim()}";
-                if ((await FirebaseFirestore.instance
-                        .collection("assignments")
-                        .doc(tempID)
-                        .get())
-                    .exists) {
-                  Fluttertoast.showToast(
-                      msg: translations["assignmentNameExistsError"]);
+                String tempID = "${userProfile!.uid} - ${nameController.text.trim()}";
+                if ((await FirebaseFirestore.instance.collection("assignments").doc(tempID).get()).exists) {
+                  Fluttertoast.showToast(msg: translations["assignmentNameExistsError"]);
                   return;
                 }
                 loadedAssignments[tempID] = Assignment(
@@ -268,13 +234,9 @@ class AssignmentPageState extends State<AssignmentPage> {
                     ownerId: userProfile!.uid,
                     creatorName: userProfile!.username,
                     isActive: false,
-                    assignedEmpires:
-                        selectedEmpire.id != null ? [selectedEmpire.id!] : [],
+                    assignedEmpires: selectedEmpire.id != null ? [selectedEmpire.id!] : [],
                     lastUpdated: DateTime.now());
-                await FirebaseFirestore.instance
-                    .collection("assignments")
-                    .doc(tempID)
-                    .set(loadedAssignments[tempID]!.toJson());
+                await FirebaseFirestore.instance.collection("assignments").doc(tempID).set(loadedAssignments[tempID]!.toJson());
                 Navigator.of(context).pop(); // Close the dialog
               },
               child: Text(translations["create"]),
@@ -285,8 +247,7 @@ class AssignmentPageState extends State<AssignmentPage> {
     );
   }
 
-  Future<void> _showAssignmentDetailsDialog(
-      BuildContext context, Assignment assignment) async {
+  Future<void> _showAssignmentDetailsDialog(BuildContext context, Assignment assignment) async {
     await showDialog(
         context: context,
         builder: (context) {
@@ -298,14 +259,12 @@ class AssignmentPageState extends State<AssignmentPage> {
                 mainAxisSize: MainAxisSize.min,
                 children: <Widget>[
                   ListTile(
-                    tileColor:
-                        getColorBasedOnDifficulty(assignment.getDifficulties()),
+                    tileColor: getColorBasedOnDifficulty(assignment.getDifficulties()),
                     subtitle: Text(
                       translations["difficultyLevel"],
                       style: const TextStyle(color: Colors.white),
                     ),
-                    title: Text("${assignment.getDifficulties()}",
-                        style: const TextStyle(color: Colors.white)),
+                    title: Text("${assignment.getDifficulties()}", style: const TextStyle(color: Colors.white)),
                   ),
                   ListTile(
                     subtitle: Text(translations["creator"]),
@@ -317,14 +276,11 @@ class AssignmentPageState extends State<AssignmentPage> {
                   ),
                   ListTile(
                     subtitle: Text(translations["isVisibleToStudents"]),
-                    title: Text(assignment.isActive
-                        ? translations["yes"]
-                        : translations["no"]),
+                    title: Text(assignment.isActive ? translations["yes"] : translations["no"]),
                   ),
                   ListTile(
                     subtitle: Text(translations["lastUpdate"]),
-                    title: Text(
-                        "${DateFormat.yMMMMd().format(assignment.lastUpdated)} ${DateFormat.Hms().format(assignment.lastUpdated)}"),
+                    title: Text("${DateFormat.yMMMMd().format(assignment.lastUpdated)} ${DateFormat.Hms().format(assignment.lastUpdated)}"),
                   ),
                 ],
               ),
@@ -340,9 +296,7 @@ class AssignmentPageState extends State<AssignmentPage> {
                 style: ElevatedButton.styleFrom(backgroundColor: Colors.blue),
                 onPressed: () async {
                   await Navigator.of(context).push(
-                    MaterialPageRoute(
-                        builder: (context) =>
-                            AssignmentEditorScreen(assignment: assignment)),
+                    MaterialPageRoute(builder: (context) => AssignmentEditorScreen(assignment: assignment)),
                   );
                   Navigator.pop(context);
                 },
@@ -351,33 +305,23 @@ class AssignmentPageState extends State<AssignmentPage> {
               ElevatedButton(
                 style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
                 onPressed: () async {
-                  await showRemoveAssignmentConfirmationDialog(
-                      context, assignment.id);
+                  await showRemoveAssignmentConfirmationDialog(context, assignment.id);
                   // You can show a confirmation dialog before deleting
                   Navigator.of(context).pop(); // Close the dialog
                 },
-                child: Text(assignment.assignedEmpires.length == 1
-                    ? translations["delete"]
-                    : translations["remove"]),
+                child: Text(assignment.assignedEmpires.length == 1 ? translations["delete"] : translations["remove"]),
               ),
             ],
           );
         });
   }
 
-  Future<void> showAssignmentsImportPopup(
-      BuildContext context, String userProfileId, Empire selectedEmpire) async {
+  Future<void> showAssignmentsImportPopup(BuildContext context, String userProfileId, Empire selectedEmpire) async {
     QuerySnapshot<Map<String, dynamic>> assignmentsSnapshot =
-        await FirebaseFirestore.instance
-            .collection('assignments')
-            .where('ownerId', isEqualTo: userProfileId)
-            .get();
+        await FirebaseFirestore.instance.collection('assignments').where('ownerId', isEqualTo: userProfileId).get();
 
     List<DocumentSnapshot<Map<String, dynamic>>> assignments =
-        assignmentsSnapshot.docs
-            .where((element) =>
-                !element.data()["assignedEmpires"].contains(selectedEmpire.id))
-            .toList();
+        assignmentsSnapshot.docs.where((element) => !element.data()["assignedEmpires"].contains(selectedEmpire.id)).toList();
 
     await showDialog(
       context: context,
@@ -393,16 +337,13 @@ class AssignmentPageState extends State<AssignmentPage> {
                     child: ListView.builder(
                       itemCount: assignments.length,
                       itemBuilder: (BuildContext context, int index) {
-                        Assignment assignment =
-                            Assignment.fromJson(assignments[index].data()!);
+                        Assignment assignment = Assignment.fromJson(assignments[index].data()!);
 
                         return Padding(
                           padding: const EdgeInsets.all(8.0),
                           child: ListTile(
                             title: Text(assignment.name),
-                            shape: selectedAssignment == index
-                                ? Border.all()
-                                : null,
+                            shape: selectedAssignment == index ? Border.all() : null,
                             subtitle: Text(
                                 '${translations["difficulty"]}: ${assignment.getDifficulties()}\n${translations["task"]}: ${assignment.tasks.length}'),
                             onTap: () {
@@ -431,16 +372,11 @@ class AssignmentPageState extends State<AssignmentPage> {
                   padding: const EdgeInsets.all(8.0),
                   child: ElevatedButton(
                     onPressed: () async {
-                      Assignment tempAssignment = Assignment.fromJson(
-                          assignments[selectedAssignment!].data()!);
+                      Assignment tempAssignment = Assignment.fromJson(assignments[selectedAssignment!].data()!);
                       tempAssignment.assignedEmpires = [selectedEmpire.id!];
-                      String tempId =
-                          "${tempAssignment.id} ${DateTime.now().millisecondsSinceEpoch}";
+                      String tempId = "${tempAssignment.id} ${DateTime.now().millisecondsSinceEpoch}";
                       tempAssignment.id = tempId;
-                      await FirebaseFirestore.instance
-                          .collection("assignments")
-                          .doc(tempId)
-                          .set(tempAssignment.toJson());
+                      await FirebaseFirestore.instance.collection("assignments").doc(tempId).set(tempAssignment.toJson());
                       Navigator.of(context).pop();
                       // Logic for copying task to empire
                     },

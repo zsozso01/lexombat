@@ -1,3 +1,5 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -32,8 +34,7 @@ class EmpireCreateScreenState extends State<EmpireCreateScreen> {
                 padding: const EdgeInsets.all(8.0),
                 child: TextField(
                   controller: _nameController,
-                  decoration:
-                      InputDecoration(labelText: translations["empireName"]),
+                  decoration: InputDecoration(labelText: translations["empireName"]),
                 ),
               ),
               Padding(
@@ -45,7 +46,7 @@ class EmpireCreateScreenState extends State<EmpireCreateScreen> {
                     onPressed: () => setState(() {
                       generatedID = generateUniqueEmpireId();
                     }),
-                    icon: Icon(Icons.refresh),
+                    icon: const Icon(Icons.refresh),
                   ),
                 ),
               ),
@@ -94,7 +95,7 @@ class EmpireCreateScreenState extends State<EmpireCreateScreen> {
                           height: 50,
                           color: coatOfArmsColors[index],
                           child: selectedIconColor == index
-                              ? Icon(
+                              ? const Icon(
                                   Icons.check,
                                   color: Colors.white,
                                 )
@@ -124,7 +125,7 @@ class EmpireCreateScreenState extends State<EmpireCreateScreen> {
                           height: 50,
                           color: coatOfArmsColors[index],
                           child: selectedBackgroundColor == index
-                              ? Icon(
+                              ? const Icon(
                                   Icons.check,
                                   color: Colors.white,
                                 )
@@ -135,14 +136,12 @@ class EmpireCreateScreenState extends State<EmpireCreateScreen> {
                   },
                 ),
               ),
-              generateCoatOfArms(
-                  selectedBackgroundColor, selectedIcon, selectedIconColor, 1),
+              generateCoatOfArms(selectedBackgroundColor, selectedIcon, selectedIconColor, 1),
               const SizedBox(height: 20),
               ElevatedButton(
                 onPressed: () async {
                   if (_nameController.text.trim().isEmpty) {
-                    Fluttertoast.showToast(
-                        msg: translations["nameRequiredError"]);
+                    Fluttertoast.showToast(msg: translations["nameRequiredError"]);
                     return;
                   }
                   // Create the Empire object using the input values
@@ -151,22 +150,14 @@ class EmpireCreateScreenState extends State<EmpireCreateScreen> {
                     creatorID: userProfile!.uid,
                     creatorName: userProfile!.username,
                     joinedMembers: [], // Initialize as an empty map
-                    coatOfArms:
-                        "$selectedIcon $selectedBackgroundColor $selectedIconColor", // Parse the int or default to 0
+                    coatOfArms: "$selectedIcon $selectedBackgroundColor $selectedIconColor", // Parse the int or default to 0
                   );
-                  while ((await FirebaseFirestore.instance
-                          .collection("empires")
-                          .doc(generatedID)
-                          .get())
-                      .exists) {
+                  while ((await FirebaseFirestore.instance.collection("empires").doc(generatedID).get()).exists) {
                     setState(() {
                       generatedID = generateUniqueEmpireId();
                     });
                   }
-                  await FirebaseFirestore.instance
-                      .collection("empires")
-                      .doc(generatedID)
-                      .set(newEmpire.toJson());
+                  await FirebaseFirestore.instance.collection("empires").doc(generatedID).set(newEmpire.toJson());
 
                   Fluttertoast.showToast(msg: translations["empireCreated"]);
                   Navigator.pop(context);

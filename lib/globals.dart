@@ -14,8 +14,7 @@ late Map<String, dynamic> translations;
 Future<Map<String, dynamic>> loadTranslations(String languageCode) async {
   /*String jsonString =
       await rootBundle.loadString('assets/translations/$languageCode');*/
-  String jsonString =
-      await rootBundle.loadString('assets/translations/en.json');
+  String jsonString = await rootBundle.loadString('assets/translations/en.json');
   return json.decode(jsonString);
 }
 
@@ -33,12 +32,7 @@ class Profile {
   String email;
   bool isAdmin;
   int premiumCredits;
-  Profile(
-      {required this.email,
-      required this.isAdmin,
-      required this.uid,
-      required this.username,
-      required this.premiumCredits});
+  Profile({required this.email, required this.isAdmin, required this.uid, required this.username, required this.premiumCredits});
 }
 
 Future<bool> login({required String email, required String password}) async {
@@ -55,11 +49,7 @@ Future<bool> login({required String email, required String password}) async {
   prefs.setString('Email', email);
   prefs.setString('Password', password);
   String uid = FirebaseAuth.instance.currentUser?.uid ?? "";
-  FirebaseFirestore.instance
-      .collection("userInfo")
-      .doc(uid)
-      .snapshots()
-      .listen((snapshot) {
+  FirebaseFirestore.instance.collection("userInfo").doc(uid).snapshots().listen((snapshot) {
     userProfile = Profile(
         premiumCredits: snapshot["premiumCredits"] ?? 0,
         email: email,
@@ -179,13 +169,7 @@ class Empire {
   List<String> joinedMembers;
   String coatOfArms;
 
-  Empire(
-      {required this.name,
-      required this.creatorID,
-      required this.creatorName,
-      required this.joinedMembers,
-      required this.coatOfArms,
-      this.id});
+  Empire({required this.name, required this.creatorID, required this.creatorName, required this.joinedMembers, required this.coatOfArms, this.id});
 
   factory Empire.fromJson(Map<String, dynamic> json, String? id) {
     return Empire(
@@ -222,8 +206,7 @@ String generateUniqueEmpireId() {
   return "${userProfile!.uid.substring(0, 2)}${DateTime.now().millisecondsSinceEpoch.toString().substring(6)}${userProfile!.uid.substring(userProfile!.uid.length - 2)}"; // Replace this with the actual unique ID
 }
 
-Widget generateCoatOfArms(int selectedBackgroundColor, int selectedIcon,
-    int selectedIconColor, double scale) {
+Widget generateCoatOfArms(int selectedBackgroundColor, int selectedIcon, int selectedIconColor, double scale) {
   return Stack(
     alignment: Alignment.center,
     children: [
@@ -250,10 +233,7 @@ void showLogout(BuildContext context) {
       ),
       content: Text(
         translations["logoutPrompt"],
-        style: TextStyle(
-            color: Theme.of(context).brightness == Brightness.dark
-                ? Colors.white
-                : Colors.black),
+        style: TextStyle(color: Theme.of(context).brightness == Brightness.dark ? Colors.white : Colors.black),
       ),
       actions: <Widget>[
         TextButton(
@@ -315,8 +295,7 @@ class Task {
       isTrueOrFalse: json['isTrueOrFalse'] ?? false,
       goodAnswers: List<String>.from(json['goodAnswers'] ?? []),
       wrongAnswers: List<String>.from(json['wrongAnswers'] ?? []),
-      difficultyMultiplier:
-          double.parse((json['difficultyMultiplier'] ?? 1).toString()),
+      difficultyMultiplier: double.parse((json['difficultyMultiplier'] ?? 1).toString()),
     );
   }
 
@@ -335,10 +314,7 @@ class Task {
     if (isTrueOrFalse) {
       return 1;
     }
-    return min(
-        ((goodAnswers.length + wrongAnswers.length) / 2 * difficultyMultiplier)
-            .toInt(),
-        5);
+    return min(((goodAnswers.length + wrongAnswers.length) / 2 * difficultyMultiplier).toInt(), 5);
   }
 }
 
@@ -364,8 +340,7 @@ class Assignment {
 
   factory Assignment.fromJson(Map<String, dynamic> json) {
     var tasksJson = json['tasks'] as List<dynamic>;
-    List<Task> tasks =
-        tasksJson.map((taskJson) => Task.fromJson(taskJson)).toList();
+    List<Task> tasks = tasksJson.map((taskJson) => Task.fromJson(taskJson)).toList();
 
     return Assignment(
       id: json['id'] ?? '',
@@ -380,8 +355,7 @@ class Assignment {
   }
 
   Map<String, dynamic> toJson() {
-    List<Map<String, dynamic>> tasksJson =
-        tasks.map((task) => task.toJson()).toList();
+    List<Map<String, dynamic>> tasksJson = tasks.map((task) => task.toJson()).toList();
 
     return {
       'id': id,
@@ -400,8 +374,7 @@ class Assignment {
     for (var task in tasks) {
       tempStorage += task.calculateTaskDifficulty();
     }
-    return (tempStorage / (tasks.isNotEmpty ? tasks.length : 1) * 100).round() /
-        100;
+    return (tempStorage / (tasks.isNotEmpty ? tasks.length : 1) * 100).round() / 100;
   }
 }
 
@@ -431,16 +404,11 @@ String formatNumber(int number, int accuracy) {
     formattedNumber = number / 1000;
     suffix = 'K';
   }
-  return formattedNumber.toStringAsFixed(formattedNumber > 9999
-          ? accuracy - (formattedNumber.toInt().toString().length % accuracy)
-          : 0) +
-      suffix;
+  return formattedNumber.toStringAsFixed(formattedNumber > 9999 ? accuracy - (formattedNumber.toInt().toString().length % accuracy) : 0) + suffix;
 }
 
 Future<dynamic> loadAssignments(Empire selectedEmpire, bool updateMode) async {
-  var tempQuery = FirebaseFirestore.instance
-      .collection("assignments")
-      .where("assignedEmpires", arrayContains: selectedEmpire.id);
+  var tempQuery = FirebaseFirestore.instance.collection("assignments").where("assignedEmpires", arrayContains: selectedEmpire.id);
   if (selectedEmpire.creatorID != userProfile!.uid) {
     tempQuery = tempQuery.where("isActive", isEqualTo: true);
   }
@@ -456,8 +424,7 @@ Future<dynamic> loadAssignments(Empire selectedEmpire, bool updateMode) async {
         if (docChange.type == DocumentChangeType.removed) {
           loadedAssignments.remove(docChange.doc.id);
         } else {
-          loadedAssignments[docChange.doc.id] =
-              Assignment.fromJson(docChange.doc.data()!);
+          loadedAssignments[docChange.doc.id] = Assignment.fromJson(docChange.doc.data()!);
         }
       }
     });
@@ -482,4 +449,202 @@ Future<void> showLoadingDialog(BuildContext context, String text) async {
       );
     },
   );
+}
+
+class CustomToast {
+  static void show(BuildContext context, String message) {
+    OverlayEntry overlayEntry;
+
+    overlayEntry = OverlayEntry(
+      builder: (context) => Material(
+        color: Colors.transparent,
+        child: Center(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+            child: Container(
+              padding: const EdgeInsets.all(8.0),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                border: Border.all(width: 3),
+                borderRadius: BorderRadius.circular(8.0),
+              ),
+              child: Text(
+                message,
+                style: const TextStyle(color: Colors.black),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+
+    Overlay.of(context).insert(overlayEntry);
+
+    Future.delayed(const Duration(seconds: 5), () {
+      overlayEntry.remove();
+    });
+  }
+}
+
+class Building {
+  String name;
+  int level;
+  String image;
+  Map<String, int> costToProduce;
+  Map<String, int> resourcesProduced;
+  double resourceMultiplierPerLevel;
+  Map<String, int> costToUpgrade;
+  double upgradeCostMultiplierPerLevel;
+
+  Building({
+    required this.name,
+    required this.level,
+    required this.image,
+    required this.resourcesProduced,
+    required this.costToProduce,
+    required this.costToUpgrade,
+    required this.resourceMultiplierPerLevel,
+    required this.upgradeCostMultiplierPerLevel,
+  });
+
+  Map<String, dynamic> toJson() {
+    return {
+      'name': name,
+      'level': level,
+      'image': image,
+      'costToProduce': costToProduce,
+      'resourcesProduced': resourcesProduced,
+      'resourceMultiplierPerLevel': resourceMultiplierPerLevel,
+      'costToUpgrade': costToUpgrade,
+      'upgradeCostMultiplierPerLevel': upgradeCostMultiplierPerLevel,
+    };
+  }
+
+  factory Building.fromJson(Map<String, dynamic> json) {
+    return Building(
+      name: json['name'],
+      level: json['level'],
+      image: json['image'],
+      costToProduce: Map<String, int>.from(json['costToProduce']),
+      resourcesProduced: Map<String, int>.from(json['resourcesProduced']),
+      resourceMultiplierPerLevel: json['resourceMultiplierPerLevel'],
+      costToUpgrade: Map<String, int>.from(json['costToUpgrade']),
+      upgradeCostMultiplierPerLevel: json['upgradeCostMultiplierPerLevel'],
+    );
+  }
+}
+
+List<Widget> getResourceTiles(Map<String, int> resources, double multiplier, int level) {
+  List<Widget> resourceTiles = [];
+
+  resources.forEach((resource, amount) {
+    resourceTiles.add(
+      Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Column(
+          children: [
+            Image.asset(
+              'assets/resource-icons/$resource.png',
+              width: 30,
+              height: 30,
+            ),
+            Text(formatNumber((amount * pow(multiplier, level - 1)).toInt(), 4)),
+          ],
+        ),
+      ),
+    );
+  });
+
+  return resourceTiles;
+}
+
+Future<void> saveResources(String empire) async {
+  var query = FirebaseFirestore.instance.collection("resources").doc("$empire ${userProfile!.uid}");
+  if ((await query.get()).exists) {
+    await query.update(storedResources);
+  } else {
+    query.set(storedResources);
+  }
+}
+
+final List<String> resources = ["Wood", "Stone", "Gold", "Food", "Iron", "Soldier"];
+final Map<String, int> maxStorableResources = {
+  "Wood": 50,
+  "Stone": 30,
+  "Gold": 500,
+  "Food": 30,
+  "Iron": 20,
+  "Soldier": 15,
+};
+
+const double storageResourceScale = 1.2;
+Map<String, int> storedResources = {};
+Map<String, Building> currentBuildings = {};
+
+Widget resourceTile({required String resource, required String icon, required double size, required double textSize, required BuildContext context}) {
+  double storageProgress =
+      (storedResources[resource] ?? 0) / ((maxStorableResources[resource]! * pow(storageResourceScale, currentBuildings["Warehouse"]!.level)));
+  return Padding(
+    padding: const EdgeInsets.all(4.0),
+    child: Container(
+      decoration: BoxDecoration(
+        border: Border.all(width: 3),
+        borderRadius: const BorderRadius.all(Radius.circular(10)),
+        color: const Color.fromARGB(158, 228, 228, 228),
+      ),
+      child: Stack(
+        children: [
+          Positioned.fill(
+            child: RotatedBox(
+              quarterTurns: -1,
+              child: LinearProgressIndicator(
+                value: storageProgress,
+                valueColor: AlwaysStoppedAnimation<Color>((storageProgress < 0.5
+                        ? Color.lerp(Colors.lightGreen, Colors.yellow, storageProgress * 2)
+                        : Color.lerp(Colors.yellow, Colors.red, (storageProgress - 0.5) * 2)) ??
+                    Colors.white),
+                borderRadius: const BorderRadius.all(Radius.circular(5)),
+              ),
+            ),
+          ),
+          Column(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(2),
+                child: Container(
+                  width: size, // Set a fixed width for a square tile
+                  height: size, // Set a fixed height for a square tile
+                  decoration: BoxDecoration(
+                    image: DecorationImage(
+                      filterQuality: FilterQuality.none,
+                      image: AssetImage(icon),
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(3.0),
+                child: Text(
+                  formatNumber(storedResources[resource] ?? 0, 4),
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: textSize,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    ),
+  );
+}
+
+Color stringToColor(String value) {
+  if (value == "") return const Color.fromARGB(118, 74, 188, 78);
+  final int hash = jsonEncode(value).hashCode & 0xffffff;
+  final double hue = (hash % 360).toDouble();
+  return HSVColor.fromAHSV(1.0, hue, 0.8, 0.8).toColor();
 }
